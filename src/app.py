@@ -24,9 +24,9 @@ def main():
     return jsonify({'msg':'Exito'})
 
 
-##############    REGISTRO POST   ##############
+##############    REGISTRO GET   ##############
 
-@app.route('/users', methods=['GET','POST'])    
+@app.route('/users', methods=['GET'])    
 @app.route('/users/<int:id>', methods=['GET','PUT','DELETE'])
 def users(id=None):
     if request.method == 'GET':
@@ -48,6 +48,8 @@ def users(id=None):
             users = list(
                 map(lambda user : user.serialize_with_profile(),users)
             )
+           
+           
             return jsonify({
                 "Total Usuarios":len(users), 
                 "Usuarios":users
@@ -55,8 +57,6 @@ def users(id=None):
      
     if request.method == 'PUT':
         pass
-        
-
 
     
     if request.method == 'DELETE':
@@ -67,7 +67,7 @@ def users(id=None):
         return jsonify({"Correcto":"Usuario Eliminado"}),200
     
     
-##############   REGISTRO    ##############
+##############   REGISTRO POST    ##############
 @app.route('/user/signup', methods=['POST'])
 def registro():
     name=request.json.get('name')
@@ -77,6 +77,7 @@ def registro():
     password = request.json.get('password')
     phone = request.json.get('phone')
 
+
     user = User()
     user.name=name
     user.last_name =last_name
@@ -84,29 +85,42 @@ def registro():
     user.email=email
     user.password=generate_password_hash(password)
     user.phone=phone
-    user.save()
-
-    city=request.json.get('city',"")
-    profession = request.json.get('profession',"")
-    website = request.json.get('website',"")
-    github = request.json.get('github',"")
-    twitter = request.json.get('twitter',"")
-    instagram = request.json.get('instagram',"")
-    facebook = request.json.get('facebook',"")
-
     profile = Profile()
-    profile.city=city
-    profile.profession=profession
-    profile.website=website
-    profile.github=github
-    profile.twitter=twitter
-    profile.instagram=instagram
-    profile.facebook=facebook
-
     user.profile = profile
     user.save()
 
+
     return jsonify({'Usuario creado': user.serialize()}),201
+
+
+
+########### PROFILE #############
+
+@app.route('/user/<int:id>/profile', methods=['POST','PUT'])
+def profile(id=None):
+
+    if id is not None:
+        user = User.query.filter_by(id=id).first()
+
+        if not user: 
+            return jsonify({
+                "Error": "Usuario no encontrado"
+        }),404
+
+        if user:
+            city=request.json.get('city',"")
+            country=request.json.get('country',"")
+    
+            profile = Profile()
+
+            profile.city=city
+            profile.country=country
+            profile.user_id=user.id
+            #profile.id=user.id
+            #user.profile = profile
+            profile.save()
+
+            return jsonify({'Datos Profile creados': profile.serialize()}),201
 
 
 ########### LOGIN ###############

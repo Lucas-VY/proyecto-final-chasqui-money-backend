@@ -5,6 +5,40 @@ from sqlalchemy import Column, String, Integer, ForeignKey
 
 db = SQLAlchemy()
 
+##############    BANK DATA   ##############
+
+class Bank(db.Model):
+    __tablename__='bank'
+    id = db.Column(db.Integer,primary_key=True)
+    card_number = db.Column(db.Integer,nullable=False)
+    expires_card = db.Column(db.String(120),nullable=False)
+    cvv = db.Column(db.Integer,nullable=False, unique=True)
+    bank_payment = db.Column(db.String(100),nullable=False)
+    account_number = db.Column(db.Integer,nullable=False, unique=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'),nullable=False)
+    
+    def serialize(self):
+        return {
+            "id": self.id,
+            "card_number":self.card_number,
+            "expires_card": self.expires_card,
+            "cvv":self.cvv,
+            "bank_payment": self.bank_payment,
+            "account_number": self.account_number
+        }
+    
+    def save(self):
+        db.session.add(self)  
+        db.session.commit()   
+
+    def update(self):
+        db.session.commit()
+    
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+
 ##############    USER   ##############
 
 class User(db.Model):
@@ -17,7 +51,8 @@ class User(db.Model):
     password = db.Column(db.String(1000),nullable=False)
     phone = db.Column(db.Integer,nullable=False, unique=True)
     profile= db.relationship('Profile', cascade="all, delete", backref="user", uselist=False) #Campo es de 1 a1
-    
+    #profile= db.relationship('Bank_Data', cascade="all, delete", backref="user", uselist=False) #Campo es de 1 a1
+    #profile= db.relationship('Orden', cascade="all, delete", backref="user", uselist=False) #Campo es de 1 a1
 
     def serialize(self):
         return {
@@ -28,7 +63,6 @@ class User(db.Model):
             "email": self.email,
             ## PASSWORD
             "phone":self.phone
-            
         }
     
     def serialize_with_profile(self):
@@ -44,9 +78,10 @@ class User(db.Model):
         }
 
     
+    
     def save(self):
-        db.session.add(self)  #Insert
-        db.session.commit()   #Guarda
+        db.session.add(self)  
+        db.session.commit()   
 
     def update(self):
         db.session.commit()
@@ -56,19 +91,13 @@ class User(db.Model):
         db.session.commit()
 
 
-
-
 ##############    PROFILE   ##############
+
 class Profile(db.Model):
     __tablename__ ='profile'
     id = db.Column(db.Integer,primary_key=True)
     city = db.Column(db.String(120), default="")
-    profession = db.Column(db.String(10), default="")
-    website=db.Column(db.String(120), default="")
-    github=db.Column(db.String(120), default="")
-    twitter=db.Column(db.String(120), default="")
-    instagram=db.Column(db.String(120), default="")
-    facebook=db.Column(db.String(120), default="")
+    country = db.Column(db.String(10), default="")
     #trans= db.Column(db.String(120),nullable=False) FK ?
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'),nullable=False)
 
@@ -76,18 +105,12 @@ class Profile(db.Model):
         return {
             "id": self.id,
             "city": self.city,
-            "profession": self.profession,
-            "website":self.website,
-            "github":self.github,
-            "twitter":self.twitter,
-            "instagram":self.instagram,
-            "facebook":self.facebook
-            
+            "country": self.country    
         }
 
     def save(self):
-        db.session.add(self)  #Insert
-        db.session.commit()   #Guarda
+        db.session.add(self)  
+        db.session.commit()   
 
     def update(self):
         db.session.commit()
@@ -96,70 +119,61 @@ class Profile(db.Model):
         db.session.delete(self)
         db.session.commit()
 
-######## Tabla serialize ######### Puedo devolver los datos del perfil a consultar con el usuario
 
     def serialize_with_user(self):
         return {
             "id": self.id,
             "city": self.city,
-            "profession": self.profession,
-            "website":self.website,
-            "github":self.github,
-            "twitter":self.twitter,
-            "instagram":self.instagram,
-            "facebook":self.facebook,
+            "country": self.country,
             "user":{
                 "name":self.user.name
             }
         }
 
 
-
 ##############    ORDEN   ##############
 class Order(db.Model):
     __tablename__ ='order'
     id = db.Column(db.Integer,primary_key=True)
-    original_value = db.Column(db.Integer,nullable=False)
-    dollar_value = db.Column(db.Integer,nullable=False)
+    money_send = db.Column(db.Integer,nullable=False)
     date = db.Column(db.String(120),nullable=False) #Cambiar a dato fecha
-    payment_method = db.Column(db.String(120),nullable=False) #Ver lista?
-    user_id = db.Column(db.Integer, db.ForeignKey(User.id))
-    addressee_id= db.Column(db.Integer, db.ForeignKey('addressee.id'))
-    status_id = db.Column(db.Integer, db.ForeignKey('status.id'))
+    transaction_code = db.Column(db.String(120),nullable=False) 
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'),nullable=False)
+    destino_id = db.Column(db.Integer, db.ForeignKey('destino.id', ondelete='CASCADE'),nullable=False)
+    status = db.Column(db.Integer, db.ForeignKey('status.id', ondelete='CASCADE'),nullable=False)
 
     def serialize(self):
         return {
             "id": self.id,
-            "original_value": self.original_value,
-            "dollar_value": self.dollar_value,
+            "money_send": self.money_send,
             "date": self.date,
-            "payment_method": self.payment_method,
+            "transaction_code": self.transaction_code
            # "user_id":self.user_id,
-            #"addressee":self.addressee_id,
+            #"destino":self.destino_id,
             #"status_id":self.status_id
         }
 
 
-##############    ADDRESSEE   ##############
-class Addressee(db.Model):
-    __tablename__ ='addressee'
+
+##############    Destino   ##############
+class Destino(db.Model):
+    __tablename__ ='destino'
     id = db.Column(db.Integer,primary_key=True)
     first_name = db.Column(db.String(120),nullable=False)
     last_name = db.Column(db.String(120),nullable=False)
-    city = db.Column(db.String(120),nullable=False)
-    phone = db.Column(db.Integer,nullable=False)
-    gender = db.Column(db.String(10),nullable=False)
+    bank_payment = db.Column(db.String(120),nullable=False)
+    account_number = db.Column(db.Integer,nullable=False) 
 
     def serialize(self):
         return {
             "id": self.id,
             "first_name": self.first_name,
             "last_name": self.last_name,
-            "city": self.city,
-            "phone": self.phone,
-            "gender":self.gender
+            "bank_payment": self.bank_payment,
+            "account_number": self.account_number
         }
     
+
 ##############    STATUS   ##############
 class Status(db.Model):
     __tablename__ ='status'
@@ -171,6 +185,17 @@ class Status(db.Model):
             "id": self.id,
             "description": self.description
         }
+
+
+
+
+
+
+
+
+
+
+
 
 ##############    ADMINISTRATOR   ##############
 class Administrator(db.Model):
