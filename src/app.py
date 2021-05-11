@@ -96,7 +96,7 @@ def registro():
 
 ########### PROFILE #############
 
-@app.route('/user/<int:id>/profile', methods=['POST','PUT'])
+@app.route('/user/<int:id>/profile', methods=['PUT'])
 def profile(id=None):
 
     if id is not None:
@@ -111,16 +111,19 @@ def profile(id=None):
             city=request.json.get('city',"")
             country=request.json.get('country',"")
     
-            profile = Profile()
+            #profile = Profile()
 
-            profile.city=city
-            profile.country=country
-            profile.user_id=user.id
-            #profile.id=user.id
-            #user.profile = profile
-            profile.save()
+            user.profile.city=city
+            user.profile.country=country
+            #profile.user_id=user.id
+            
+            #profile.save()
+            user.update()
 
-            return jsonify({'Datos Profile creados': profile.serialize()}),201
+            return jsonify({'Datos Profile creados': user.profile.serialize()}),201
+
+
+
 
 
 ########### LOGIN ###############

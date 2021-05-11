@@ -191,12 +191,6 @@ class Status(db.Model):
 
 
 
-
-
-
-
-
-
 ##############    ADMINISTRATOR   ##############
 class Administrator(db.Model):
     __tablename__ ='administrator'
