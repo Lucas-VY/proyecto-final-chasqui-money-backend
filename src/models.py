@@ -51,7 +51,7 @@ class User(db.Model):
     password = db.Column(db.String(1000),nullable=False)
     phone = db.Column(db.Integer,nullable=False, unique=True)
     profile= db.relationship('Profile', cascade="all, delete", backref="user", uselist=False) #Campo es de 1 a1
-    #profile= db.relationship('Bank_Data', cascade="all, delete", backref="user", uselist=False) #Campo es de 1 a1
+    #profile= db.relationship('Bank', cascade="all, delete", backref="user", uselist=False) #Campo es de 1 a1
     #profile= db.relationship('Orden', cascade="all, delete", backref="user", uselist=False) #Campo es de 1 a1
 
     def serialize(self):
@@ -98,7 +98,6 @@ class Profile(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     city = db.Column(db.String(120), default="")
     country = db.Column(db.String(10), default="")
-    #trans= db.Column(db.String(120),nullable=False) FK ?
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'),nullable=False)
 
     def serialize(self):
@@ -131,15 +130,15 @@ class Profile(db.Model):
         }
 
 
-##############    ORDEN   ##############
-class Order(db.Model):
-    __tablename__ ='order'
+##############    CARD   ##############
+class Card(db.Model):
+    __tablename__ ='card'
     id = db.Column(db.Integer,primary_key=True)
     money_send = db.Column(db.Integer,nullable=False)
     date = db.Column(db.String(120),nullable=False) #Cambiar a dato fecha
     transaction_code = db.Column(db.String(120),nullable=False) 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'),nullable=False)
-    destino_id = db.Column(db.Integer, db.ForeignKey('destino.id', ondelete='CASCADE'),nullable=False)
+    addressee_id = db.Column(db.Integer, db.ForeignKey('adressee.id', ondelete='CASCADE'),nullable=False)
     status = db.Column(db.Integer, db.ForeignKey('status.id', ondelete='CASCADE'),nullable=False)
 
     def serialize(self):
@@ -155,9 +154,9 @@ class Order(db.Model):
 
 
 
-##############    Destino   ##############
-class Destino(db.Model):
-    __tablename__ ='destino'
+##############    ADDRESSEE  ##############
+class Addressee(db.Model):
+    __tablename__ ='addressee'
     id = db.Column(db.Integer,primary_key=True)
     first_name = db.Column(db.String(120),nullable=False)
     last_name = db.Column(db.String(120),nullable=False)
