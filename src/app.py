@@ -1,10 +1,13 @@
 from flask import Flask, json, jsonify, request, render_template
+from flask.helpers import total_seconds
 from flask_script import Manager
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_migrate import Migrate, MigrateCommand
 from flask_cors import CORS
 from models import db, User, Profile
 from flask_jwt_extended import JWTManager, get_jwt_identity, create_access_token, jwt_required
+from datetime import timedelta
+
 
 app = Flask(__name__)
 app.url_map.strict_slashes = False #no errores si incluyo o no un / en una ruta ó endpoints
@@ -13,13 +16,14 @@ app.config['ENV'] = 'development' #Evitar cortar y levantar el servidor
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///database.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = '70cf96676b04c7e8c6e6b4151278486d'
-
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(seconds=3600)
 db.init_app(app)  #Vincula app con bd
 Migrate(app, db)  #Vincula comandos
 CORS(app)
 jwt = JWTManager(app)
 manager = Manager(app) ##Adminsitra el app
 manager.add_command("db", MigrateCommand) #Genera comando db 
+
 
 
 
