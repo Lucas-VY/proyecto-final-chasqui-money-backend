@@ -46,7 +46,7 @@ class User(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     name = db.Column(db.String(120),nullable=False)
     last_name = db.Column(db.String(120),nullable=False)
-    rut = db.Column(db.String(15),nullable=False, unique=True)
+    #rut = db.Column(db.String(15),nullable=False, unique=True)
     email = db.Column(db.String(120),nullable=False, unique=True)
     password = db.Column(db.String(1000),nullable=False)
     phone = db.Column(db.Integer,nullable=False, unique=True)
@@ -59,23 +59,33 @@ class User(db.Model):
             "id": self.id,
             "name":self.name,
             "last_name": self.last_name,
-            "rut":self.rut,
+            #"rut":self.rut,
             "email": self.email,
             ## PASSWORD
             "phone":self.phone
         }
     
     def serialize_with_profile(self):
-        return {
+        return [{
             "id": self.id,
             "name":self.name,
             "last_name": self.last_name,
-            "rut":self.rut,
+            #"rut":self.rut,
             "email": self.email,
             "phone":self.phone,
             "profile":self.profile.serialize()
             
-        }
+        }]
+    
+    def serialize_prueba(self):
+        return [{
+            "name":self.name,
+            "last_name": self.last_name,
+            "country":self.profile.country,
+            "phone":self.phone,
+            "address":self.profile.address,
+            "email": self.email
+        }]
 
     
     
@@ -96,15 +106,15 @@ class User(db.Model):
 class Profile(db.Model):
     __tablename__ ='profile'
     id = db.Column(db.Integer,primary_key=True)
-    city = db.Column(db.String(120), default="")
-    country = db.Column(db.String(10), default="")
+    country = db.Column(db.String(120), default="")
+    address = db.Column(db.String(10), default="")
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'),nullable=False)
 
     def serialize(self):
         return {
             "id": self.id,
-            "city": self.city,
-            "country": self.country    
+            "country": self.country,
+            "address": self.address    
         }
 
     def save(self):
@@ -122,8 +132,8 @@ class Profile(db.Model):
     def serialize_with_user(self):
         return {
             "id": self.id,
-            "city": self.city,
             "country": self.country,
+            "address": self.address,
             "user":{
                 "name":self.user.name
             }
@@ -138,7 +148,7 @@ class Card(db.Model):
     date = db.Column(db.String(120),nullable=False) #Cambiar a dato fecha
     transaction_code = db.Column(db.String(120),nullable=False) 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'),nullable=False)
-    addressee_id = db.Column(db.Integer, db.ForeignKey('adressee.id', ondelete='CASCADE'),nullable=False)
+    addressee_id = db.Column(db.Integer, db.ForeignKey('addressee.id', ondelete='CASCADE'),nullable=False)
     status = db.Column(db.Integer, db.ForeignKey('status.id', ondelete='CASCADE'),nullable=False)
 
     def serialize(self):

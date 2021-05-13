@@ -5,8 +5,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_migrate import Migrate, MigrateCommand
 from flask_cors import CORS
 from models import db, User, Profile
-from flask_jwt_extended import JWTManager, get_jwt_identity, create_access_token, jwt_required
-from datetime import timedelta
+#from flask_jwt_extended import JWTManager, get_jwt_identity, create_access_token, jwt_required
+#from datetime import timedelta
 
 
 app = Flask(__name__)
@@ -15,12 +15,13 @@ app.config['DEBUG'] = True  #Muestra errores del servidor
 app.config['ENV'] = 'development' #Evitar cortar y levantar el servidor
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///database.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JWT_SECRET_KEY'] = '70cf96676b04c7e8c6e6b4151278486d'
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(seconds=3600)
+#app.config['JWT_SECRET_KEY'] = '70cf96676b04c7e8c6e6b4151278486d'
+#app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(seconds=3600)
 db.init_app(app)  #Vincula app con bd
 Migrate(app, db)  #Vincula comandos
 CORS(app)
-jwt = JWTManager(app)
+#cors=CORS(app, resources={r"/*":{"origins":"*"}})
+#jwt = JWTManager(app)
 manager = Manager(app) ##Adminsitra el app
 manager.add_command("db", MigrateCommand) #Genera comando db 
 
@@ -36,10 +37,11 @@ def main():
 
 ##############    USUARIOS REGISTRADOS GET   ##############
 
-@app.route('/user', methods=['GET'])    
-@app.route('/user/<int:id>', methods=['GET','PUT','DELETE'])    #Cambio users a user
+@app.route('/user', methods=['GET'])    #ME DEVUELVE TODOS LOS USUARIOS
+@app.route('/user/<int:id>', methods=['GET','PUT','DELETE'])    #USUARIO EN ESPECIFICO
 def users(id=None):
     if request.method == 'GET':
+        
         if id is not None:
             user = User.query.get(id)
 
@@ -64,6 +66,8 @@ def users(id=None):
                 "Total Usuarios":len(users), 
                 "Usuarios":users
             }),200    
+
+
      
     if request.method == 'PUT':
         pass
@@ -82,20 +86,18 @@ def users(id=None):
 def registro():
     name=request.json.get('name')
     last_name = request.json.get('last_name')
-    rut = request.json.get('rut')
+    #rut = request.json.get('rut')
     email = request.json.get('email')
     password = request.json.get('password')
     phone = request.json.get('phone')
-
-
 
     if not name:
         return jsonify({"Error":"Indicar Nombre"}), 400
 
     if not last_name:
         return jsonify({"Error":"Indicar Apellido"}), 400
-    if not rut:
-        return jsonify({"Error":"Indicar Rut"}), 400
+    #if not rut:
+        #return jsonify({"Error":"Indicar Rut"}), 400
     if not email:
         return jsonify({"Error":"Indicar Email"}), 400
     if not password:
@@ -103,9 +105,9 @@ def registro():
     if not phone:
         return jsonify({"Error":"Indicar Telefono"}), 400
 
-    user = User.query.filter_by(rut=rut).first()
-    if user:
-        return jsonify({"Error":"Este Rut ya se encuentra registrado"}), 400
+    #user = User.query.filter_by(rut=rut).first()
+    #if user:
+        #return jsonify({"Error":"Este Rut ya se encuentra registrado"}), 400
     
     user = User.query.filter_by(email=email).first()
     if user:
@@ -119,7 +121,7 @@ def registro():
     user = User()
     user.name=name
     user.last_name =last_name
-    user.rut=rut
+    #user.rut=rut
     user.email=email
     user.password=generate_password_hash(password)
     user.phone=phone
@@ -134,14 +136,13 @@ def registro():
 
 ########### PROFILE #############
 
+#Ruta con token funciona, pero hay que ver que sucede con el profile id especifico.    
 
-    
-#Ruta con token funciona, pero hay que ver que sucede con el profile id especifico. 
-@app.route('/user/profile', methods=['GET'])   
-@app.route('/user/profile/<int:id>', methods=['PUT'])  #cambio linea 
-@jwt_required() 
+@app.route('/user/profile/<int:id>', methods=['GET','PUT'])  
+#@jwt_required() 
 def profile(id=None):
 
+    ##Actualiza los datos de profile##
     if request.method == 'PUT':
         if id is not None:
             user = User.query.filter_by(id=id).first()
@@ -152,13 +153,13 @@ def profile(id=None):
             }),404
 
             if user:
-                city=request.json.get('city',"")
                 country=request.json.get('country',"")
+                address=request.json.get('address',"")
     
                 #profile = Profile()
 
-                user.profile.city=city
                 user.profile.country=country
+                user.profile.address=address
                 #profile.user_id=user.id
             
                 #profile.save()
@@ -167,8 +168,22 @@ def profile(id=None):
                 return jsonify({'Datos Profile creados': user.profile.serialize()}),201
 
     if request.method == 'GET':
-        current_user = get_jwt_identity()
-        return jsonify({"Correcto":"Private Route", "Usuario":current_user}), 200
+        
+        if id is not None:
+            user = User.query.get(id)
+
+            if not user: 
+                return jsonify({
+                    "Error": "Usuario no encontrado"
+                }),404
+
+            return jsonify({
+                "Usuario": user.serialize_prueba()
+            }),200
+
+    #if request.method == 'GET':
+        #current_user = get_jwt_identity()
+        #return jsonify({"Correcto":"Private Route", "Usuario":current_user}), 200
         
         
         
@@ -196,10 +211,10 @@ def login_user():
     if not check_password_hash(user.password, password):
         return jsonify({"Error":"Usuario o contraseña invalida"}), 401 
 
-    access_token = create_access_token(identity=email)  
-    return jsonify({"token":access_token}),200
+    #access_token = create_access_token(identity=email)  
+    #return jsonify({"token":access_token}),200
 
-    #return jsonify({"Contraseña coindice": user.serialize()}), 200
+    return jsonify({"Correcto. Logeado": user.serialize()}), 200
         
     
     
