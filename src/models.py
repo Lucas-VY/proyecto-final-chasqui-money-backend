@@ -78,14 +78,14 @@ class User(db.Model):
         }]
     
     def serialize_prueba(self):
-        return [{
+        return {
             "name":self.name,
             "last_name": self.last_name,
             "country":self.profile.country,
             "phone":self.phone,
             "address":self.profile.address,
             "email": self.email
-        }]
+        }
 
     
     
