@@ -139,7 +139,7 @@ def registro():
 #Ruta con token funciona, pero hay que ver que sucede con el profile id especifico.    
 
 @app.route('/user/profile/<int:id>', methods=['GET','PUT'])  
-@jwt_required() 
+#@jwt_required() 
 def profile(id=None):
 
     ##Actualiza los datos de profile##
@@ -166,12 +166,10 @@ def profile(id=None):
                 user.update()
 
                 return jsonify({'Datos Profile creados': user.profile.serialize()}),201
-
-    
-
     if request.method == 'GET':
-        current_user = get_jwt_identity()
-        return jsonify({"Correcto":"Private Route", "Usuario":current_user}), 200
+        user = User.query.get(id)
+        #current_user = get_jwt_identity()
+        return jsonify(user.serialize_prueba()), 200
         
         
         
