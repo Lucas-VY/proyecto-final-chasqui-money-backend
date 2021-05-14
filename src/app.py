@@ -181,7 +181,7 @@ def profile(id=None):
 @app.route('/user/signin', methods=['POST'])
 def login_user():
     email = request.json.get('email')
-    password = request.json.get('password')
+    password = request.json.get('password2')
 
     if not email:
         return jsonify({"Error":"El campo Email se encuentra vacio"}), 400
@@ -197,10 +197,10 @@ def login_user():
     if not check_password_hash(user.password, password):
         return jsonify({"Error":"Usuario o contraseña invalida"}), 401 
 
-    access_token = create_access_token(identity=email)  
-    return jsonify({"token":access_token}),200
-
-    #return jsonify({"Correcto. Logeado": user.serialize()}), 200
+    #access_token = create_access_token(identity=email)  
+    #return jsonify({"token":access_token}),200
+    
+    return jsonify({"Correcto. Logeado": user.serialize()}), 200
         
     
     
