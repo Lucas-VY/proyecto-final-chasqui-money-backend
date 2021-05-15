@@ -15,13 +15,13 @@ app.config['DEBUG'] = True  #Muestra errores del servidor
 app.config['ENV'] = 'development' #Evitar cortar y levantar el servidor
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///database.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JWT_SECRET_KEY'] = '70cf96676b04c7e8c6e6b4151278486d'
+app.config['JWT_SECRET_KEY'] = '7cb2c2339e5adea4d6e6e237c3a04bfd'
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(seconds=3600)
 db.init_app(app)  #Vincula app con bd
 Migrate(app, db)  #Vincula comandos
 CORS(app)
 #cors=CORS(app, resources={r"/*":{"origins":"*"}})
-jwt = JWTManager(app)
+#jwt = JWTManager(app)
 manager = Manager(app) ##Adminsitra el app
 manager.add_command("db", MigrateCommand) #Genera comando db 
 
@@ -139,7 +139,7 @@ def registro():
 #Ruta con token funciona, pero hay que ver que sucede con el profile id especifico.    
 
 @app.route('/user/profile/<int:id>', methods=['GET','PUT'])  
-#@jwt_required() 
+#@jwt_required()   #Activar para Token 
 def profile(id=None):
 
     ##Actualiza los datos de profile##
@@ -167,12 +167,15 @@ def profile(id=None):
 
                 return jsonify({'Datos Profile creados': user.profile.serialize()}),201
     if request.method == 'GET':
-        user = User.query.get(id)
-        #current_user = get_jwt_identity()
-        return jsonify(user.serialize_prueba()), 200
+        user = User.query.get(id)   #Desactivar sin token
+        #current_user = get_jwt_identity() #Activar para token  #Muestra cual es el usuario actual
+        return jsonify(user.serialize_prueba()), 200 #Desactivar sin token
+        #return jsonify({"success":"Private route", "user":current_user}),200  #Activar para token
+        #return jsonify(user.serialize_prueba(),{"success":"Private route", "user":current_user}), 200 #Desactivar sin token
         
         
         
+
 
 
 
@@ -195,12 +198,12 @@ def login_user():
         return jsonify({"Error":"Usuario o contraseña invalida"}), 401
 
     if not check_password_hash(user.password, password):
-        return jsonify({"Error":"Usuario o contraseña invalida"}), 401 
+        return jsonify({"Error":"Usuario o contraseña invalida(Contraseña"}), 401 
 
-    #access_token = create_access_token(identity=email)  
-    #return jsonify({"token":access_token}),200
+    access_token = create_access_token(identity=email)  
+    return jsonify({"access_token":access_token}),200
     
-    return jsonify({"Correcto. Logeado": user.serialize()}), 200
+    #return jsonify({"Correcto. Logeado": user.serialize()}), 200
         
     
     

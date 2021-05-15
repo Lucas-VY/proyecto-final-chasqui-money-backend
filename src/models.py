@@ -151,6 +151,19 @@ class Card(db.Model):
     addressee_id = db.Column(db.Integer, db.ForeignKey('addressee.id', ondelete='CASCADE'),nullable=False)
     status = db.Column(db.Integer, db.ForeignKey('status.id', ondelete='CASCADE'),nullable=False)
 
+    def save(self):
+        db.session.add(self)  
+        db.session.commit()   
+
+    def update(self):
+        db.session.commit()
+    
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+
+
     def serialize(self):
         return {
             "id": self.id,
@@ -173,6 +186,17 @@ class Addressee(db.Model):
     bank_payment = db.Column(db.String(120),nullable=False)
     account_number = db.Column(db.Integer,nullable=False) 
 
+    def save(self):
+        db.session.add(self)  
+        db.session.commit()   
+
+    def update(self):
+        db.session.commit()
+    
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+        
     def serialize(self):
         return {
             "id": self.id,
