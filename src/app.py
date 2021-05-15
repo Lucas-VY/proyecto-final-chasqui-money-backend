@@ -200,10 +200,10 @@ def login_user():
     if not check_password_hash(user.password, password):
         return jsonify({"Error":"Usuario o contraseña invalida(Contraseña"}), 401 
 
-    access_token = create_access_token(identity=email)  
-    return jsonify({"access_token":access_token}),200
+    #access_token = create_access_token(identity=email)  
+    #return jsonify({"access_token":access_token}),200
     
-    #return jsonify({"Correcto. Logeado": user.serialize()}), 200
+    return jsonify({"Correcto. Logeado": user.serialize()}), 200
         
     
     
