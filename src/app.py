@@ -216,10 +216,10 @@ def login_user():
 
 
 
-##########     CARD
+##########     TRANSACCION
 
 @app.route('/user/card', methods=['GET','POST'])    #ME DEVUELVE TODOS LOS USUARIOS
-@app.route('/user/card/<int:id>', methods=['GET','PUT','DELETE'])    #USUARIO EN ESPECIFICO
+@app.route('/user/card/<int:id>', methods=['GET','POST','DELETE'])    #USUARIO EN ESPECIFICO
 def cards(id=None):
 
     if request.method=='GET':
@@ -233,22 +233,29 @@ def cards(id=None):
     
 
     if request.method=='POST':
-        
-        money_send= request.json.get("money_send")
-        transaction_code= request.json.get("transaction_code")
-        date= request.json.get("date")
-        user_id=request.json.get("user_id")
-        
-        
+        if id is not None:
+            user = User.query.filter_by(id=id).first()
 
-        card= Card()
-        card.money_send=money_send
-        card.transaction_code=transaction_code
-        card.date=date
-        card.user_id= user_id
-        card.save()
+            if not user: 
+                return jsonify({
+                    "Error": "Usuario no encontrado"
+            }),404
 
-        return jsonify(card.serialize_card_with_user()),201
+            if user:
+
+                money_send= request.json.get("money_send")
+                transaction_code= request.json.get("transaction_code")
+                date= request.json.get("date")
+                user_id=user.id
+        
+                card= Card()
+                card.money_send=money_send
+                card.transaction_code=transaction_code
+                card.date=date
+                card.user_id= user_id
+                card.save()
+
+                return jsonify(card.serialize_card_with_user()),201
         
     if request.method=='PUT':
         pass
@@ -257,15 +264,6 @@ def cards(id=None):
         pass
 
 
-
-
-
-
-
-
-
-    
-    
 
 
 if __name__ == '__main__':

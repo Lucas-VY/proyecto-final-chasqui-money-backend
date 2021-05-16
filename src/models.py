@@ -101,7 +101,7 @@ class User(db.Model):
 
 
 
-##############    CARD   ##############
+##############    TRANSACCION   ##############
 class Card(db.Model):
     __tablename__ ='card'
     id = db.Column(db.Integer,primary_key=True)
