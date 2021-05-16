@@ -5,40 +5,6 @@ from sqlalchemy import Column, String, Integer, ForeignKey
 
 db = SQLAlchemy()
 
-##############    BANK DATA   ##############
-
-class Bank(db.Model):
-    __tablename__='bank'
-    id = db.Column(db.Integer,primary_key=True)
-    card_number = db.Column(db.Integer,nullable=False)
-    expires_card = db.Column(db.String(120),nullable=False)
-    cvv = db.Column(db.Integer,nullable=False, unique=True)
-    bank_payment = db.Column(db.String(100),nullable=False)
-    account_number = db.Column(db.Integer,nullable=False, unique=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'),nullable=False)
-    
-    def serialize(self):
-        return {
-            "id": self.id,
-            "card_number":self.card_number,
-            "expires_card": self.expires_card,
-            "cvv":self.cvv,
-            "bank_payment": self.bank_payment,
-            "account_number": self.account_number
-        }
-    
-    def save(self):
-        db.session.add(self)  
-        db.session.commit()   
-
-    def update(self):
-        db.session.commit()
-    
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
-
-
 ##############    USER   ##############
 
 class User(db.Model):
@@ -50,34 +16,43 @@ class User(db.Model):
     email = db.Column(db.String(120),nullable=False, unique=True)
     password = db.Column(db.String(1000),nullable=False)
     phone = db.Column(db.Integer,nullable=False, unique=True)
-    profile= db.relationship('Profile', cascade="all, delete", backref="user", uselist=False) #Campo es de 1 a1
-    #profile= db.relationship('Bank', cascade="all, delete", backref="user", uselist=False) #Campo es de 1 a1
-    #profile= db.relationship('Orden', cascade="all, delete", backref="user", uselist=False) #Campo es de 1 a1
+    profile= db.relationship('Profile', cascade="all, delete", backref="user", uselist=False) #1 a 1
+    card= db.relationship('Card', cascade="all, delete", backref="user") # 1 a muchos
+    #Este me retorna un array con todos los objetos de tipo Card que esten asociados a ese usuario
+    #Cuantas ordenes tiene el usuario
+    
+    def save(self):
+        db.session.add(self)  
+        db.session.commit()   
 
-    def serialize(self):
+    def update(self):
+        db.session.commit()
+    
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def serialize(self):    #Devuelve todos los datos del user (Normal)
         return {
             "id": self.id,
             "name":self.name,
             "last_name": self.last_name,
-            #"rut":self.rut,
             "email": self.email,
-            ## PASSWORD
             "phone":self.phone
         }
     
-    def serialize_with_profile(self):
-        return [{
+    def user_with_profile(self):     #Devuelve todos los datos del user + todos los de profile
+        return {
             "id": self.id,
             "name":self.name,
             "last_name": self.last_name,
-            #"rut":self.rut,
             "email": self.email,
             "phone":self.phone,
-            "profile":self.profile.serialize()
+            "profile":self.profile.serialize()  #Devuelve todo lo de profile
             
-        }]
-    
-    def serialize_prueba(self):
+        }
+
+    def serialize_profile(self):       #Devuelve todos los datos del user + 2 especificos de profile. Corresponde a los datos exactos que pide el fronted en Profile
         return {
             "name":self.name,
             "last_name": self.last_name,
@@ -86,58 +61,44 @@ class User(db.Model):
             "address":self.profile.address,
             "email": self.email
         }
-
     
-    
-    def save(self):
-        db.session.add(self)  
-        db.session.commit()   
 
-    def update(self):
-        db.session.commit()
-    
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
-
-
-##############    PROFILE   ##############
-
-class Profile(db.Model):
-    __tablename__ ='profile'
-    id = db.Column(db.Integer,primary_key=True)
-    country = db.Column(db.String(120), default="")
-    address = db.Column(db.String(10), default="")
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'),nullable=False)
-
-    def serialize(self):
+    def serialize_user_with_cards(self):     #Devuelve todos los datos del user + todos los de profile
         return {
             "id": self.id,
-            "country": self.country,
-            "address": self.address    
+            "name":self.name,
+            "last_name": self.last_name,
+            "email": self.email,
+            "phone":self.phone,
+            "cards":self.get_cards()
+            
         }
 
-    def save(self):
-        db.session.add(self)  
-        db.session.commit()   
-
-    def update(self):
-        db.session.commit()
-    
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
-
-
-    def serialize_with_user(self):
+    def serialize_user_with_cards_profile(self):     #Devuelve todos los datos del user + todos los de profile
         return {
             "id": self.id,
-            "country": self.country,
-            "address": self.address,
-            "user":{
-                "name":self.user.name
-            }
-        }
+            "name":self.name,
+            "last_name": self.last_name,
+            "email": self.email,
+            "phone":self.phone,
+            "cards":self.get_cards(),
+            "profile":self.profile.serialize()
+            
+        }    
+    
+    def get_cards(self):
+        return list(map(lambda card : card.serialize(), self.card))
+
+
+    def card_by_user(self):
+        return len(self.card)
+
+
+    
+    
+    
+
+
 
 
 ##############    CARD   ##############
@@ -145,11 +106,11 @@ class Card(db.Model):
     __tablename__ ='card'
     id = db.Column(db.Integer,primary_key=True)
     money_send = db.Column(db.Integer,nullable=False)
-    date = db.Column(db.String(120),nullable=False) #Cambiar a dato fecha
+    date = db.Column(db.String(120)) #Cambiar a dato fecha
     transaction_code = db.Column(db.String(120),nullable=False) 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'),nullable=False)
-    addressee_id = db.Column(db.Integer, db.ForeignKey('addressee.id', ondelete='CASCADE'),nullable=False)
-    status = db.Column(db.Integer, db.ForeignKey('status.id', ondelete='CASCADE'),nullable=False)
+    
+
 
     def save(self):
         db.session.add(self)  
@@ -162,18 +123,31 @@ class Card(db.Model):
         db.session.delete(self)
         db.session.commit()
 
-
-
-    def serialize(self):
+    def serialize(self):    #Devuelve todos los datos de Card
         return {
             "id": self.id,
             "money_send": self.money_send,
             "date": self.date,
-            "transaction_code": self.transaction_code
-           # "user_id":self.user_id,
-            #"destino":self.destino_id,
-            #"status_id":self.status_id
-        }
+            "transaction_code": self.transaction_code,
+            "user_id":self.user_id            
+        }  
+
+    def serialize_card_with_user(self):    #Devuelve todos los datos de Card
+        return {
+            "id": self.id,
+            "money_send": self.money_send,
+            "date": self.date,
+            "transaction_code": self.transaction_code,
+            "user":{
+                "id":self.user.id,
+                "email":self.user.email
+            }
+            
+        } 
+
+
+    
+
 
 
 
@@ -197,7 +171,7 @@ class Addressee(db.Model):
         db.session.delete(self)
         db.session.commit()
         
-    def serialize(self):
+    def serialize(self):     #Devuelve todos los datos de Destinatario
         return {
             "id": self.id,
             "first_name": self.first_name,
@@ -206,6 +180,74 @@ class Addressee(db.Model):
             "account_number": self.account_number
         }
     
+
+
+
+##############    PROFILE   ##############
+
+class Profile(db.Model):
+    __tablename__ ='profile'
+    id = db.Column(db.Integer,primary_key=True)
+    country = db.Column(db.String(120), default="")
+    address = db.Column(db.String(10), default="")
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'),nullable=False)
+
+    def serialize(self):       #Devuelve todos los datos de profile
+        return {
+            "id": self.id,
+            "country": self.country,
+            "address": self.address    
+        }
+
+    def save(self):
+        db.session.add(self)  
+        db.session.commit()   
+
+    def update(self):
+        db.session.commit()
+    
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+
+    def serialize_with_user(self):      #Devuelve todos los datos de profile + el nombre de usuario
+        return {
+            "id": self.id,
+            "country": self.country,
+            "address": self.address,
+            "user":{
+                "name":self.user.name
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ##############    STATUS   ##############
 class Status(db.Model):
@@ -235,3 +277,4 @@ class Administrator(db.Model):
             "id": self.id,
             "notification": self.notification
         }
+

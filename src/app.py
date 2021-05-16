@@ -4,7 +4,7 @@ from flask_script import Manager
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_migrate import Migrate, MigrateCommand
 from flask_cors import CORS
-from models import db, User, Profile
+from models import db, User, Profile, Card
 from flask_jwt_extended import JWTManager, get_jwt_identity, create_access_token, jwt_required
 from datetime import timedelta
 
@@ -58,9 +58,10 @@ def users(id=None):
         else:
             users=User.query.all()
             users = list(
-                map(lambda user : user.serialize_with_profile(),users)
+                map(lambda user : user.serialize_user_with_cards_profile(),users)
             )
-           
+
+            
            
             return jsonify({
                 "Total Usuarios":len(users), 
@@ -134,6 +135,8 @@ def registro():
 
 
 
+
+
 ########### PROFILE #############
 
 #Ruta con token funciona, pero hay que ver que sucede con el profile id especifico.    
@@ -169,7 +172,7 @@ def profile(id=None):
     if request.method == 'GET':
         user = User.query.get(id)   #Desactivar sin token
         #current_user = get_jwt_identity() #Activar para token  #Muestra cual es el usuario actual
-        return jsonify(user.serialize_prueba()), 200 #Desactivar sin token
+        return jsonify(user.serialize_profile()), 200 #Desactivar sin token
         #return jsonify({"success":"Private route", "user":current_user}),200  #Activar para token
         #return jsonify(user.serialize_prueba(),{"success":"Private route", "user":current_user}), 200 #Desactivar sin token
         
@@ -205,7 +208,62 @@ def login_user():
     
     return jsonify({"Correcto. Logeado": user.serialize()}), 200
         
+
+
+
+
+
+
+
+
+##########     CARD
+
+@app.route('/user/card', methods=['GET','POST'])    #ME DEVUELVE TODOS LOS USUARIOS
+@app.route('/user/card/<int:id>', methods=['GET','PUT','DELETE'])    #USUARIO EN ESPECIFICO
+def cards(id=None):
+
+    if request.method=='GET':
+        if id is not None:
+            pass
+
+        else:
+            cards=Card.query.all()
+            cards = list(map(lambda card : card.serialize(),cards))
+            return jsonify({"Cards":cards}),200
     
+
+    if request.method=='POST':
+        
+        money_send= request.json.get("money_send")
+        transaction_code= request.json.get("transaction_code")
+        date= request.json.get("date")
+        user_id=request.json.get("user_id")
+        
+        
+
+        card= Card()
+        card.money_send=money_send
+        card.transaction_code=transaction_code
+        card.date=date
+        card.user_id= user_id
+        card.save()
+
+        return jsonify(card.serialize_card_with_user()),201
+        
+    if request.method=='PUT':
+        pass
+
+    if request.method=='DELETE':
+        pass
+
+
+
+
+
+
+
+
+
     
     
 
