@@ -4,7 +4,7 @@ from flask_script import Manager
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_migrate import Migrate, MigrateCommand
 from flask_cors import CORS
-from models import db, User, Profile, Card, Addressee
+from models import db, User, Profile, Card
 from flask_jwt_extended import JWTManager, get_jwt_identity, create_access_token, jwt_required
 from datetime import timedelta
 
@@ -187,7 +187,7 @@ def profile(id=None):
 @app.route('/user/signin', methods=['POST'])
 def login_user():
     email = request.json.get('email')
-    password = request.json.get('password2')
+    password = request.json.get('password')
 
     if not email:
         return jsonify({"Error":"El campo Email se encuentra vacio"}), 400
@@ -206,7 +206,7 @@ def login_user():
     #access_token = create_access_token(identity=email)  
     #return jsonify({"access_token":access_token}),200
     
-    return jsonify({"Correcto. Logeado": user.serialize()}), 200
+    return jsonify({"resultado": user.serialize()}), 200
         
 
 
@@ -243,27 +243,35 @@ def cards(id=None):
 
             if user:
                 #card
+                #addressee=Addressee()
                 money_send= request.json.get("money_send")
                 transaction_code= request.json.get("transaction_code")
                 date= request.json.get("date")
                 user_id=user.id
+                #addressee_id=1
+
                 #addressee_id
 
                 #destinatario
-                #full_name= request.json.get("full_name")
-                #country= request.json.get("country")
-                #bank_payment= request.json.get("bank_payment")
-                #account_number= request.json.get("account_number")
+                full_name= request.json.get("full_name")
+                country= request.json.get("country")
+                bank_payment= request.json.get("bank_payment")
+                account_number= request.json.get("account_number")
 
-                #addressee=Addressee()
+                
                 #addressee.full_name=full_name
                 #addressee.country=country
                 #addressee.bank_payment=bank_payment
                 #addressee.account_number=account_number
+                
 
 
         
                 card= Card()
+                card.full_name=full_name
+                card.country=country
+                card.bank_payment=bank_payment
+                card.account_number=account_number
                 card.money_send=money_send
                 card.transaction_code=transaction_code
                 card.date=date

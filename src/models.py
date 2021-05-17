@@ -83,7 +83,9 @@ class User(db.Model):
             "email": self.email,
             "phone":self.phone,
             "cards":self.get_cards(),
-            "profile":self.profile.serialize()
+            "profile":self.profile.serialize(),
+            #"addressee":self.addressee.get_cards()
+            
             
         }    
     
@@ -108,7 +110,13 @@ class Card(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     money_send = db.Column(db.Integer,nullable=False)
     date = db.Column(db.String(120)) #Cambiar a dato fecha
-    transaction_code = db.Column(db.String(120),nullable=False) #Comprobante
+    transaction_code = db.Column(db.Integer,nullable=False) #Comprobante
+
+    full_name = db.Column(db.String(120),nullable=False)
+    country = db.Column(db.String(120),nullable=False)
+    bank_payment = db.Column(db.String(120),nullable=False)
+    account_number = db.Column(db.Integer,nullable=False) 
+
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'),nullable=False)
     #addressee_id=db.Column(db.Integer, db.ForeignKey('addressee.id', ondelete='CASCADE'),nullable=False)
 
@@ -133,7 +141,11 @@ class Card(db.Model):
             "money_send": self.money_send,
             "date": self.date,
             "transaction_code": self.transaction_code,
-            "user_id":self.user_id            
+            "user_id":self.user_id  ,  
+            "full_name":self.full_name,
+	        "country":self.country,
+	        "bank_payment":self.bank_payment,
+	        "account_number":self.account_number       
         }  
 
     def serialize_card_with_user(self):    #Devuelve todos los datos de Card
@@ -156,7 +168,7 @@ class Card(db.Model):
 
 
 ##############    ADDRESSEE  ##############
-class Addressee(db.Model):
+""" class Addressee(db.Model):
     __tablename__ ='addressee'
     id = db.Column(db.Integer,primary_key=True)
     full_name = db.Column(db.String(120),nullable=False)
@@ -184,6 +196,13 @@ class Addressee(db.Model):
             "account_number": self.account_number
         }
     
+    def get_cards(self):
+        return list(map(lambda card : card.serialize(), self.card))
+
+
+    def card_by_addressee(self):
+        return len(self.card)
+ """
 
 
 
