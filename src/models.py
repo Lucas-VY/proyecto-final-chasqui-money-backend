@@ -16,6 +16,7 @@ class User(db.Model):
     email = db.Column(db.String(120),nullable=False, unique=True)
     password = db.Column(db.String(1000),nullable=False)
     phone = db.Column(db.Integer,nullable=False, unique=True)
+    
     profile= db.relationship('Profile', cascade="all, delete", backref="user", uselist=False) #1 a 1
     card= db.relationship('Card', cascade="all, delete", backref="user") # 1 a muchos
     #Este me retorna un array con todos los objetos de tipo Card que esten asociados a ese usuario
@@ -101,14 +102,17 @@ class User(db.Model):
 
 
 
-##############    TRANSACCION   ##############
+##############    CARD   ##############
 class Card(db.Model):
     __tablename__ ='card'
     id = db.Column(db.Integer,primary_key=True)
     money_send = db.Column(db.Integer,nullable=False)
     date = db.Column(db.String(120)) #Cambiar a dato fecha
-    transaction_code = db.Column(db.String(120),nullable=False) 
+    transaction_code = db.Column(db.String(120),nullable=False) #Comprobante
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'),nullable=False)
+    #addressee_id=db.Column(db.Integer, db.ForeignKey('addressee.id', ondelete='CASCADE'),nullable=False)
+
+    #addressee= db.relationship('Addressee', cascade="all, delete", backref="card") # 1 a muchos 
     
 
 
@@ -155,8 +159,8 @@ class Card(db.Model):
 class Addressee(db.Model):
     __tablename__ ='addressee'
     id = db.Column(db.Integer,primary_key=True)
-    first_name = db.Column(db.String(120),nullable=False)
-    last_name = db.Column(db.String(120),nullable=False)
+    full_name = db.Column(db.String(120),nullable=False)
+    country = db.Column(db.String(120),nullable=False)
     bank_payment = db.Column(db.String(120),nullable=False)
     account_number = db.Column(db.Integer,nullable=False) 
 
@@ -174,8 +178,8 @@ class Addressee(db.Model):
     def serialize(self):     #Devuelve todos los datos de Destinatario
         return {
             "id": self.id,
-            "first_name": self.first_name,
-            "last_name": self.last_name,
+            "full_name": self.full_name,
+            "country": self.country,
             "bank_payment": self.bank_payment,
             "account_number": self.account_number
         }

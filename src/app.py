@@ -4,7 +4,7 @@ from flask_script import Manager
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_migrate import Migrate, MigrateCommand
 from flask_cors import CORS
-from models import db, User, Profile, Card
+from models import db, User, Profile, Card, Addressee
 from flask_jwt_extended import JWTManager, get_jwt_identity, create_access_token, jwt_required
 from datetime import timedelta
 
@@ -242,17 +242,33 @@ def cards(id=None):
             }),404
 
             if user:
-
+                #card
                 money_send= request.json.get("money_send")
                 transaction_code= request.json.get("transaction_code")
                 date= request.json.get("date")
                 user_id=user.id
+                #addressee_id
+
+                #destinatario
+                #full_name= request.json.get("full_name")
+                #country= request.json.get("country")
+                #bank_payment= request.json.get("bank_payment")
+                #account_number= request.json.get("account_number")
+
+                #addressee=Addressee()
+                #addressee.full_name=full_name
+                #addressee.country=country
+                #addressee.bank_payment=bank_payment
+                #addressee.account_number=account_number
+
+
         
                 card= Card()
                 card.money_send=money_send
                 card.transaction_code=transaction_code
                 card.date=date
                 card.user_id= user_id
+                #card.addressee_id=addressee_id
                 card.save()
 
                 return jsonify(card.serialize_card_with_user()),201
