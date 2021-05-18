@@ -112,10 +112,13 @@ class Card(db.Model):
     date = db.Column(db.String(120)) #Cambiar a dato fecha
     transaction_code = db.Column(db.Integer,nullable=False) #Comprobante
 
+    number_transfer= db.Column(db.Integer)
+    
+
     full_name = db.Column(db.String(120),nullable=False)
     country = db.Column(db.String(120),nullable=False)
     bank_payment = db.Column(db.String(120),nullable=False)
-    account_number = db.Column(db.Integer,nullable=False) 
+    account_number = db.Column(db.String(120),nullable=False) 
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'),nullable=False)
     #addressee_id=db.Column(db.Integer, db.ForeignKey('addressee.id', ondelete='CASCADE'),nullable=False)
@@ -145,7 +148,8 @@ class Card(db.Model):
             "full_name":self.full_name,
 	        "country":self.country,
 	        "bank_payment":self.bank_payment,
-	        "account_number":self.account_number       
+	        "account_number":self.account_number,
+            "number_transfer":self.number_transfer      
         }  
 
     def serialize_card_with_user(self):    #Devuelve todos los datos de Card

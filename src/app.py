@@ -9,6 +9,7 @@ from flask_jwt_extended import JWTManager, get_jwt_identity, create_access_token
 from datetime import timedelta
 from datetime import date
 from datetime import datetime
+from random import random, randrange
 
 app = Flask(__name__)
 app.url_map.strict_slashes = False #no errores si incluyo o no un / en una ruta ó endpoints
@@ -72,9 +73,7 @@ def users(id=None):
 
 
      
-    if request.method == 'PUT':
-        pass
-
+    
     
     if request.method == 'DELETE':
         user = User.query.get(id)
@@ -220,13 +219,13 @@ def login_user():
 
 ##########     TRANSACCION
 
-@app.route('/user/card', methods=['GET','POST'])    #ME DEVUELVE TODOS LOS USUARIOS
-@app.route('/user/card/<int:id>', methods=['GET','POST','DELETE'])    #USUARIO EN ESPECIFICO
+#@app.route('/user/card', methods=['GET','POST'])    #ME DEVUELVE TODOS LOS USUARIOS
+@app.route('/user/card/<id>', methods=['GET','POST','DELETE'])    #USUARIO EN ESPECIFICO
 def cards(id=None):
 
     if request.method=='GET':
         if id is not None:
-            pass
+            return jsonify({"Cards":"Hola"}),200
 
         else:
             cards=Card.query.all()
@@ -246,19 +245,18 @@ def cards(id=None):
             if user:
                 #card
                 #addressee=Addressee()
-                money_send= request.json.get("money_send")
-                transaction_code= request.json.get("transaction_code")
+                money_send= request.json.get("monto")
+                transaction_code= request.json.get("registroComprobante")
                 date= today
+                number_transfer=randrange(9999,9999999999)
                 user_id=user.id
-                #addressee_id=1
-
-                #addressee_id
+                
 
                 #destinatario
-                full_name= request.json.get("full_name")
+                full_name= request.json.get("name")
                 country= request.json.get("country")
-                bank_payment= request.json.get("bank_payment")
-                account_number= request.json.get("account_number")
+                bank_payment= request.json.get("banco")
+                account_number= request.json.get("numeroCuenta")
 
                 
                 #addressee.full_name=full_name
@@ -266,9 +264,6 @@ def cards(id=None):
                 #addressee.bank_payment=bank_payment
                 #addressee.account_number=account_number
                 
-
-
-        
                 card= Card()
                 card.full_name=full_name
                 card.country=country
@@ -277,17 +272,14 @@ def cards(id=None):
                 card.money_send=money_send
                 card.transaction_code=transaction_code
                 card.date=date
+                card.number_transfer=number_transfer
                 card.user_id= user_id
                 #card.addressee_id=addressee_id
                 card.save()
 
                 return jsonify(card.serialize_card_with_user()),201
         
-    if request.method=='PUT':
-        pass
-
-    if request.method=='DELETE':
-        pass
+    
 
 
 
