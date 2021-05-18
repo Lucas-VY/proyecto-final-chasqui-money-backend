@@ -87,10 +87,20 @@ class User(db.Model):
             #"addressee":self.addressee.get_cards()
             
             
-        }    
+        }   
+
+    def user_with_card(self):     #Devuelve todos los datos del user + todos los de profile
+        return (
+            self.get_cards_historial()  #Devuelve todo lo de profile
+            
+        )
     
     def get_cards(self):
         return list(map(lambda card : card.serialize(), self.card))
+
+    def get_cards_historial(self):
+        return list(map(lambda card : card.serialize_historial(), self.card))
+    
 
 
     def card_by_user(self):
@@ -152,6 +162,15 @@ class Card(db.Model):
             "number_transfer":self.number_transfer      
         }  
 
+    def serialize_historial(self):    #Devuelve todos los datos de Card
+        return {
+            #"id": self.id,
+            "money_send": self.money_send,
+            "date": self.date,  
+            "full_name":self.full_name,
+            "number_transfer":self.number_transfer      
+        }  
+
     def serialize_card_with_user(self):    #Devuelve todos los datos de Card
         return {
             "id": self.id,
@@ -169,44 +188,6 @@ class Card(db.Model):
     
 
 
-
-
-##############    ADDRESSEE  ##############
-""" class Addressee(db.Model):
-    __tablename__ ='addressee'
-    id = db.Column(db.Integer,primary_key=True)
-    full_name = db.Column(db.String(120),nullable=False)
-    country = db.Column(db.String(120),nullable=False)
-    bank_payment = db.Column(db.String(120),nullable=False)
-    account_number = db.Column(db.Integer,nullable=False) 
-
-    def save(self):
-        db.session.add(self)  
-        db.session.commit()   
-
-    def update(self):
-        db.session.commit()
-    
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
-        
-    def serialize(self):     #Devuelve todos los datos de Destinatario
-        return {
-            "id": self.id,
-            "full_name": self.full_name,
-            "country": self.country,
-            "bank_payment": self.bank_payment,
-            "account_number": self.account_number
-        }
-    
-    def get_cards(self):
-        return list(map(lambda card : card.serialize(), self.card))
-
-
-    def card_by_addressee(self):
-        return len(self.card)
- """
 
 
 

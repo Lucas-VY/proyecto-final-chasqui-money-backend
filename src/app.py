@@ -225,7 +225,18 @@ def cards(id=None):
 
     if request.method=='GET':
         if id is not None:
-            return jsonify({"Cards":"Hola"}),200
+            user = User.query.get(id)
+
+            if not user: 
+                return jsonify({
+                    "Error": "Usuario no encontrado"
+                }),404
+
+            return jsonify({
+                
+                "resultado":user.user_with_card()  #Se asigna serializacion de user con card en getcadr()
+            }),200
+
 
         else:
             cards=Card.query.all()
