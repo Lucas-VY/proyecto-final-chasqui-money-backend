@@ -7,7 +7,8 @@ from flask_cors import CORS
 from models import db, User, Profile, Card
 from flask_jwt_extended import JWTManager, get_jwt_identity, create_access_token, jwt_required
 from datetime import timedelta
-
+from datetime import date
+from datetime import datetime
 
 app = Flask(__name__)
 app.url_map.strict_slashes = False #no errores si incluyo o no un / en una ruta ó endpoints
@@ -24,6 +25,7 @@ CORS(app)
 #jwt = JWTManager(app)
 manager = Manager(app) ##Adminsitra el app
 manager.add_command("db", MigrateCommand) #Genera comando db 
+today = date.today()
 
 
 
@@ -246,7 +248,7 @@ def cards(id=None):
                 #addressee=Addressee()
                 money_send= request.json.get("money_send")
                 transaction_code= request.json.get("transaction_code")
-                date= request.json.get("date")
+                date= today
                 user_id=user.id
                 #addressee_id=1
 
