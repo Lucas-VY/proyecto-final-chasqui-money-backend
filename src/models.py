@@ -121,6 +121,7 @@ class Card(db.Model):
     money_send = db.Column(db.Integer,nullable=False)
     date = db.Column(db.String(120)) #Cambiar a dato fecha
     transaction_code = db.Column(db.Integer,nullable=False) #Comprobante
+    money=db.Column(db.String(120))
 
     number_transfer= db.Column(db.Integer)
     
@@ -168,7 +169,8 @@ class Card(db.Model):
             "money_send": self.money_send,
             "date": self.date,  
             "full_name":self.full_name,
-            "number_transfer":self.number_transfer      
+            "number_transfer":self.number_transfer,
+            "money":self.money      
         }  
 
     def serialize_card_with_user(self):    #Devuelve todos los datos de Card

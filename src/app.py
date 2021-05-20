@@ -261,6 +261,7 @@ def cards(id=None):
                 date= today
                 number_transfer=randrange(9999,9999999999)
                 user_id=user.id
+                money=request.json.get("money")
                 
 
                 #destinatario
@@ -283,6 +284,7 @@ def cards(id=None):
                 card.money_send=money_send
                 card.transaction_code=transaction_code
                 card.date=date
+                card.money=money
                 card.number_transfer=number_transfer
                 card.user_id= user_id
                 #card.addressee_id=addressee_id
