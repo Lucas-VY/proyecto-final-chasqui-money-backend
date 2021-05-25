@@ -120,7 +120,7 @@ class Card(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     money_send = db.Column(db.Integer,nullable=False)
     date = db.Column(db.String(120)) #Cambiar a dato fecha
-    transaction_code = db.Column(db.Integer,nullable=False) #Comprobante
+    #transaction_code = db.Column(db.Integer,nullable=False) #Comprobante
     money=db.Column(db.String(120))
 
     number_transfer= db.Column(db.Integer)
@@ -128,8 +128,8 @@ class Card(db.Model):
 
     full_name = db.Column(db.String(120),nullable=False)
     country = db.Column(db.String(120),nullable=False)
-    bank_payment = db.Column(db.String(120),nullable=False)
-    account_number = db.Column(db.String(120),nullable=False) 
+    phone = db.Column(db.Integer,nullable=False)
+    address = db.Column(db.String(120),nullable=False) 
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'),nullable=False)
     #addressee_id=db.Column(db.Integer, db.ForeignKey('addressee.id', ondelete='CASCADE'),nullable=False)
@@ -154,12 +154,12 @@ class Card(db.Model):
             "id": self.id,
             "money_send": self.money_send,
             "date": self.date,
-            "transaction_code": self.transaction_code,
+            #"transaction_code": self.transaction_code,
             "user_id":self.user_id  ,  
             "full_name":self.full_name,
 	        "country":self.country,
-	        "bank_payment":self.bank_payment,
-	        "account_number":self.account_number,
+	        "phone":self.phone,
+	        "address":self.address,
             "number_transfer":self.number_transfer      
         }  
 
@@ -178,7 +178,7 @@ class Card(db.Model):
             "id": self.id,
             "money_send": self.money_send,
             "date": self.date,
-            "transaction_code": self.transaction_code,
+            #"transaction_code": self.transaction_code,
             "user":{
                 "id":self.user.id,
                 "email":self.user.email

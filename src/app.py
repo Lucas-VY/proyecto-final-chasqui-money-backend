@@ -257,7 +257,7 @@ def cards(id=None):
                 #card
                 #addressee=Addressee()
                 money_send= request.json.get("monto")
-                transaction_code= request.json.get("registroComprobante")
+                #transaction_code= request.json.get("registroComprobante")
                 date= today
                 number_transfer=randrange(9999,9999999999)
                 user_id=user.id
@@ -267,8 +267,8 @@ def cards(id=None):
                 #destinatario
                 full_name= request.json.get("name")
                 country= request.json.get("country")
-                bank_payment= request.json.get("banco")
-                account_number= request.json.get("numeroCuenta")
+                phone= request.json.get("numero")
+                address= request.json.get("direccion")
 
                 
                 #addressee.full_name=full_name
@@ -279,10 +279,10 @@ def cards(id=None):
                 card= Card()
                 card.full_name=full_name
                 card.country=country
-                card.bank_payment=bank_payment
-                card.account_number=account_number
+                card.phone=phone
+                card.address=address
                 card.money_send=money_send
-                card.transaction_code=transaction_code
+                #card.transaction_code=transaction_code
                 card.date=date
                 card.money=money
                 card.number_transfer=number_transfer
